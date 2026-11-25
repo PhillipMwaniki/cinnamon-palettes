@@ -3,6 +3,8 @@
 Omarchy-style theme switching for Linux Mint Cinnamon. One click (or `palette apply <slug>`)
 switches the whole desktop to a palette:
 
+![Osaka Jade with the Palettes applet menu open](docs/hero.jpg)
+
 | Target | What changes |
 |---|---|
 | Cinnamon / GTK3 / GTK4 / window borders | `~/.themes/Palette-<Name>`, recoloured from Mint-Y-Dark with an Omarchy-flavoured overlay (flat surfaces, thin outlines, accent highlights) |
@@ -12,6 +14,8 @@ switches the whole desktop to a palette:
 | Ghostty | `~/.config/ghostty/themes/palette-current`, live-reloaded with SIGUSR2 |
 | btop | `~/.config/btop/themes/palette.theme` (picked up on next start) |
 | Neovim (AstroNvim) | `colorscheme palette`; running instances recolour live over their RPC sockets |
+
+![All nine palettes](docs/gallery.jpg)
 
 Palettes: Tokyo Night, Catppuccin Mocha, Kanagawa, Everforest, Gruvbox, Nord, Rosé Pine,
 Osaka Jade, Matte Black. Neovim uses the upstream colourscheme where one exists and
