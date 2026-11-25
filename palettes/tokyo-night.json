@@ -1,0 +1,37 @@
+{
+  "slug": "tokyo-night",
+  "name": "Tokyo Night",
+  "bg_dark": "#16161e",
+  "bg": "#1a1b26",
+  "bg_alt": "#292e42",
+  "outline": "#3b4261",
+  "fg": "#c0caf5",
+  "fg_dim": "#565f89",
+  "accent": "#7aa2f7",
+  "accent2": "#bb9af7",
+  "ansi": [
+    "#15161e",
+    "#f7768e",
+    "#9ece6a",
+    "#e0af68",
+    "#7aa2f7",
+    "#bb9af7",
+    "#7dcfff",
+    "#a9b1d6",
+    "#414868",
+    "#f7768e",
+    "#9ece6a",
+    "#e0af68",
+    "#7aa2f7",
+    "#bb9af7",
+    "#7dcfff",
+    "#c0caf5"
+  ],
+  "nvim": {
+    "plugin": "folke/tokyonight.nvim",
+    "colorscheme": "tokyonight-night"
+  },
+  "success": "#9ece6a",
+  "error": "#f7768e",
+  "warning": "#e0af68"
+}

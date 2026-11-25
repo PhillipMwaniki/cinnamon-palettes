@@ -1,0 +1,36 @@
+{
+  "slug": "matte-black",
+  "name": "Matte Black",
+  "bg_dark": "#0b0b0b",
+  "bg": "#121212",
+  "bg_alt": "#1e1e1e",
+  "outline": "#333333",
+  "fg": "#bebebe",
+  "fg_dim": "#8a8a8d",
+  "accent": "#e68e0d",
+  "accent2": "#d35f5f",
+  "ansi": [
+    "#333333",
+    "#d35f5f",
+    "#9aa66b",
+    "#e68e0d",
+    "#8a8a8d",
+    "#d35f5f",
+    "#bebebe",
+    "#bebebe",
+    "#555555",
+    "#e06c6c",
+    "#b5c07f",
+    "#f59e0b",
+    "#a8a8ab",
+    "#e07070",
+    "#eaeaea",
+    "#ffffff"
+  ],
+  "success": "#9aa66b",
+  "nvim": {
+    "base16": true
+  },
+  "error": "#d35f5f",
+  "warning": "#e68e0d"
+}

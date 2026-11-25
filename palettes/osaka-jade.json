@@ -1,0 +1,36 @@
+{
+  "slug": "osaka-jade",
+  "name": "Osaka Jade",
+  "bg_dark": "#0b1310",
+  "bg": "#111c18",
+  "bg_alt": "#1b2a23",
+  "outline": "#2f4a3b",
+  "fg": "#c1c497",
+  "fg_dim": "#53685b",
+  "accent": "#2dd5b7",
+  "accent2": "#e5c736",
+  "ansi": [
+    "#23372b",
+    "#ff5345",
+    "#549e6a",
+    "#459451",
+    "#509475",
+    "#d2689c",
+    "#2dd5b7",
+    "#f6f5dd",
+    "#53685b",
+    "#db9f9c",
+    "#63b07a",
+    "#e5c736",
+    "#acd4cf",
+    "#75bbb3",
+    "#8cd3cb",
+    "#9eebb3"
+  ],
+  "success": "#63b07a",
+  "nvim": {
+    "base16": true
+  },
+  "error": "#ff5345",
+  "warning": "#459451"
+}

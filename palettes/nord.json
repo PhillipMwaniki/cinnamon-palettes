@@ -1,0 +1,37 @@
+{
+  "slug": "nord",
+  "name": "Nord",
+  "bg_dark": "#242933",
+  "bg": "#2e3440",
+  "bg_alt": "#3b4252",
+  "outline": "#4c566a",
+  "fg": "#d8dee9",
+  "fg_dim": "#7b88a1",
+  "accent": "#88c0d0",
+  "accent2": "#81a1c1",
+  "ansi": [
+    "#3b4252",
+    "#bf616a",
+    "#a3be8c",
+    "#ebcb8b",
+    "#81a1c1",
+    "#b48ead",
+    "#88c0d0",
+    "#e5e9f0",
+    "#4c566a",
+    "#bf616a",
+    "#a3be8c",
+    "#ebcb8b",
+    "#81a1c1",
+    "#b48ead",
+    "#8fbcbb",
+    "#eceff4"
+  ],
+  "nvim": {
+    "plugin": "gbprod/nord.nvim",
+    "colorscheme": "nord"
+  },
+  "success": "#a3be8c",
+  "error": "#bf616a",
+  "warning": "#ebcb8b"
+}

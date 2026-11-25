@@ -1,0 +1,16 @@
+
+/* ---- @NAME@ palette overlay (cinnamon-palettes) ---- */
+button, entry, spinbutton, combobox button, dropdown > button {
+  border-radius: 6px; }
+popover > contents, popover.background > contents, menu, .menu, .context-menu {
+  border-radius: 8px; }
+tooltip, tooltip.background {
+  border-radius: 6px; }
+tooltip.background {
+  background-color: {bg_dark};
+  border: 1px solid {outline}; }
+tooltip, tooltip * {
+  color: {fg}; }
+*:link, link { color: {accent2}; }
+entry:focus-within, entry:focus {
+  box-shadow: inset 0 0 0 1px {accent}; }

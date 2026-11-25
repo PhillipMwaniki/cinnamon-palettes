@@ -1,0 +1,38 @@
+{
+  "slug": "rose-pine",
+  "name": "Rosé Pine",
+  "bg_dark": "#13111c",
+  "bg": "#191724",
+  "bg_alt": "#26233a",
+  "outline": "#403d52",
+  "fg": "#e0def4",
+  "fg_dim": "#6e6a86",
+  "accent": "#c4a7e7",
+  "accent2": "#ebbcba",
+  "ansi": [
+    "#26233a",
+    "#eb6f92",
+    "#31748f",
+    "#f6c177",
+    "#9ccfd8",
+    "#c4a7e7",
+    "#ebbcba",
+    "#e0def4",
+    "#6e6a86",
+    "#eb6f92",
+    "#31748f",
+    "#f6c177",
+    "#9ccfd8",
+    "#c4a7e7",
+    "#ebbcba",
+    "#e0def4"
+  ],
+  "success": "#9ccfd8",
+  "nvim": {
+    "plugin": "rose-pine/neovim",
+    "name": "rose-pine",
+    "colorscheme": "rose-pine-main"
+  },
+  "error": "#eb6f92",
+  "warning": "#f6c177"
+}

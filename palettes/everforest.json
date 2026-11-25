@@ -1,0 +1,37 @@
+{
+  "slug": "everforest",
+  "name": "Everforest",
+  "bg_dark": "#232a2e",
+  "bg": "#2d353b",
+  "bg_alt": "#343f44",
+  "outline": "#475258",
+  "fg": "#d3c6aa",
+  "fg_dim": "#859289",
+  "accent": "#a7c080",
+  "accent2": "#83c092",
+  "ansi": [
+    "#414b50",
+    "#e67e80",
+    "#a7c080",
+    "#dbbc7f",
+    "#7fbbb3",
+    "#d699b6",
+    "#83c092",
+    "#d3c6aa",
+    "#475258",
+    "#e67e80",
+    "#a7c080",
+    "#dbbc7f",
+    "#7fbbb3",
+    "#d699b6",
+    "#83c092",
+    "#d3c6aa"
+  ],
+  "nvim": {
+    "plugin": "sainnhe/everforest",
+    "colorscheme": "everforest"
+  },
+  "success": "#a7c080",
+  "error": "#e67e80",
+  "warning": "#dbbc7f"
+}

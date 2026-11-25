@@ -1,0 +1,304 @@
+#!/usr/bin/env python3
+"""palette — Omarchy-style one-shot theme switching for Linux Mint Cinnamon.
+
+  palette list                 palettes, * marks the active one
+  palette current              print the active palette slug
+  palette build [SLUG|--all]   (re)build the Cinnamon/GTK theme(s) into ~/.themes
+  palette apply SLUG           switch desktop, GTK4, wallpaper, Ghostty, btop, Neovim
+  palette next | prev          cycle through palettes
+  palette restore              go back to the setup saved before the first apply
+"""
+import glob, json, os, re, signal, subprocess, sys
+from pathlib import Path
+
+ROOT = Path(os.path.realpath(__file__)).parent
+sys.path.insert(0, str(ROOT / "build"))
+
+HOME = Path.home()
+STATE = HOME / ".local/state/cinnamon-palettes"
+THEMES = HOME / ".themes"
+WALLS = HOME / ".local/share/backgrounds/cinnamon-palettes"
+GHOSTTY_CFG = HOME / ".config/ghostty/config.ghostty"
+GHOSTTY_THEME = HOME / ".config/ghostty/themes/palette-current"
+BTOP_CFG = HOME / ".config/btop/btop.conf"
+BTOP_THEME = HOME / ".config/btop/themes/palette.theme"
+NVIM_COLORS = HOME / ".config/nvim/colors/palette.lua"
+GTK4 = HOME / ".config/gtk-4.0"
+
+GS = {
+    "cinnamon": ("org.cinnamon.theme", "name"),
+    "gtk": ("org.cinnamon.desktop.interface", "gtk-theme"),
+    "wm": ("org.cinnamon.desktop.wm.preferences", "theme"),
+    "wallpaper": ("org.cinnamon.desktop.background", "picture-uri"),
+}
+
+
+# ---- helpers -----------------------------------------------------------------
+def palettes():
+    out = {}
+    for f in sorted((ROOT / "palettes").glob("*.json")):
+        p = json.loads(f.read_text())
+        out[p["slug"]] = p
+    return out
+
+
+def get(slug):
+    ps = palettes()
+    if slug not in ps:
+        sys.exit(f"unknown palette '{slug}'. Try: {', '.join(ps)}")
+    return ps[slug]
+
+
+def theme_name(p):
+    return "Palette-" + p["name"].replace("é", "e").replace(" ", "-")
+
+
+def gs_get(key):
+    schema, k = GS[key]
+    return subprocess.run(["gsettings", "get", schema, k], capture_output=True, text=True).stdout.strip().strip("'")
+
+
+def gs_set(key, value):
+    schema, k = GS[key]
+    subprocess.run(["gsettings", "set", schema, k, value], check=True)
+
+
+def write_if_changed(path, text):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists() or path.read_text() != text:
+        path.write_text(text)
+
+
+def current():
+    f = STATE / "current"
+    return f.read_text().strip() if f.exists() else None
+
+
+def hexs(c):
+    return "#%02x%02x%02x" % tuple(c)
+
+
+def mix(a, b, t):
+    from theme import rgb
+    a, b = rgb(a), rgb(b)
+    return hexs(round(x + (y - x) * t) for x, y in zip(a, b))
+
+
+# ---- snapshot / restore -------------------------------------------------------
+def snapshot():
+    f = STATE / "snapshot.json"
+    if f.exists():
+        return
+    snap = {k: gs_get(k) for k in GS}
+    if GTK4.is_symlink():
+        snap["gtk4_link"] = os.readlink(GTK4)
+    if GHOSTTY_CFG.exists():
+        snap["ghostty"] = GHOSTTY_CFG.read_text()
+    if BTOP_CFG.exists():
+        m = re.search(r'^color_theme = "(.*)"', BTOP_CFG.read_text(), re.M)
+        snap["btop"] = m.group(1) if m else "Default"
+    snap["nvim"] = "astrodark"
+    STATE.mkdir(parents=True, exist_ok=True)
+    f.write_text(json.dumps(snap, indent=2))
+    print(f"saved current setup to {f}")
+
+
+def restore():
+    f = STATE / "snapshot.json"
+    if not f.exists():
+        sys.exit("no snapshot saved; nothing to restore")
+    snap = json.loads(f.read_text())
+    for k in GS:
+        if snap.get(k):
+            gs_set(k, snap[k])
+    if "gtk4_link" in snap and GTK4.is_symlink():
+        GTK4.unlink()
+        GTK4.symlink_to(snap["gtk4_link"])
+    if "ghostty" in snap:
+        GHOSTTY_CFG.write_text(snap["ghostty"])
+        reload_ghostty()
+    if "btop" in snap:
+        set_btop_theme(snap["btop"])
+    write_if_changed(NVIM_COLORS, f'vim.cmd.colorscheme("{snap["nvim"]}")\n')
+    reload_nvim()
+    (STATE / "current").unlink(missing_ok=True)
+    f.unlink()  # next apply takes a fresh snapshot
+    print("restored the setup from before cinnamon-palettes")
+
+
+# ---- targets ------------------------------------------------------------------
+def build(p, force=False):
+    import theme
+    dest = THEMES / theme_name(p)
+    stamp = dest / ".palette-build"
+    src_mtime = max(f.stat().st_mtime for f in [ROOT / "palettes" / f"{p['slug']}.json", *(ROOT / "build").glob("*")])
+    if not force and stamp.exists() and float(stamp.read_text()) >= src_mtime:
+        return dest
+    print(f"building {dest.name} …")
+    theme.build(p, dest)
+    stamp.write_text(str(src_mtime))
+    return dest
+
+
+def wallpaper(p):
+    import wallpaper as wp
+    f = WALLS / f"{p['slug']}.jpg"
+    if not f.exists():
+        WALLS.mkdir(parents=True, exist_ok=True)
+        wp.render(p, f)
+    return f
+
+
+def ghostty(p):
+    a = p["ansi"]
+    lines = [
+        f"# {p['name']} — generated by cinnamon-palettes",
+        f"background = {p['bg']}",
+        f"foreground = {p['fg']}",
+        f"cursor-color = {p['accent']}",
+        f"cursor-text = {p['bg']}",
+        f"selection-background = {p['outline']}",
+        f"selection-foreground = {p['fg']}",
+        f"window-titlebar-background = {p['bg_dark']}",
+        f"window-titlebar-foreground = {p['fg']}",
+        f"split-divider-color = {p['outline']}",
+        *(f"palette = {i}={c}" for i, c in enumerate(a)),
+    ]
+    write_if_changed(GHOSTTY_THEME, "\n".join(lines) + "\n")
+    if GHOSTTY_CFG.exists():
+        t = GHOSTTY_CFG.read_text()
+        # point the theme at our file; a titlebar colour in the main config would win over the theme
+        t2 = re.sub(r"^theme\s*=.*$", "theme = palette-current", t, flags=re.M)
+        if "theme = palette-current" not in t2:
+            t2 = "theme = palette-current\n" + t2
+        t2 = re.sub(r"^(window-titlebar-(?:back|fore)ground\s*=.*)$", r"# \1  # set by palette theme", t2, flags=re.M)
+        write_if_changed(GHOSTTY_CFG, t2)
+    reload_ghostty()
+
+
+def reload_ghostty():
+    # Ghostty reloads its configuration on SIGUSR2
+    subprocess.run(["pkill", "-USR2", "-x", "ghostty"], capture_output=True)
+
+
+def btop(p):
+    a = p["ansi"]
+    t = {
+        "main_bg": p["bg"], "main_fg": p["fg"], "title": p["fg"], "hi_fg": p["accent"],
+        "selected_bg": p["bg_alt"], "selected_fg": p["accent"], "inactive_fg": p["fg_dim"],
+        "graph_text": p["fg_dim"], "meter_bg": p["bg_alt"], "proc_misc": p["accent2"],
+        "cpu_box": p["accent"], "mem_box": p["accent2"], "net_box": a[6], "proc_box": p["outline"],
+        "div_line": p["outline"],
+        "temp_start": p["success"], "temp_mid": p["warning"], "temp_end": p["error"],
+        "cpu_start": p["accent"], "cpu_mid": p["accent2"], "cpu_end": p["error"],
+        "free_start": p["success"], "free_mid": "", "free_end": "",
+        "cached_start": a[6], "cached_mid": "", "cached_end": "",
+        "available_start": p["warning"], "available_mid": "", "available_end": "",
+        "used_start": p["error"], "used_mid": "", "used_end": "",
+        "download_start": p["accent"], "download_mid": mix(p["accent"], p["accent2"], .5), "download_end": p["accent2"],
+        "upload_start": p["success"], "upload_mid": mix(p["success"], p["warning"], .5), "upload_end": p["warning"],
+        "process_start": p["accent"], "process_mid": p["accent2"], "process_end": p["error"],
+    }
+    write_if_changed(BTOP_THEME, "".join(f'theme[{k}]="{v}"\n' for k, v in t.items()))
+    set_btop_theme("palette")
+
+
+def set_btop_theme(name):
+    if BTOP_CFG.exists():
+        t = BTOP_CFG.read_text()
+        write_if_changed(BTOP_CFG, re.sub(r'^color_theme = ".*"$', f'color_theme = "{name}"', t, flags=re.M))
+
+
+def base16(p):
+    a = p["ansi"]
+    return {
+        "base00": p["bg"], "base01": p["bg_alt"], "base02": p["outline"], "base03": p["fg_dim"],
+        "base04": mix(p["fg_dim"], p["fg"], .5), "base05": p["fg"], "base06": mix(p["fg"], "#ffffff", .3),
+        "base07": a[15], "base08": a[1], "base09": a[9], "base0A": a[11], "base0B": a[2],
+        "base0C": a[6], "base0D": p["accent"], "base0E": p["accent2"], "base0F": a[5],
+    }
+
+
+def nvim(p):
+    n = p["nvim"]
+    if n.get("base16"):
+        cols = ", ".join(f'{k} = "{v}"' for k, v in base16(p).items())
+        lua = (f'-- {p["name"]} (generated by cinnamon-palettes)\n'
+               'pcall(function() require("lazy").load({ plugins = { "base16-nvim" } }) end)\n'
+               f'require("base16-colorscheme").setup({{ {cols} }})\n'
+               'vim.g.colors_name = "palette"\n')
+    else:
+        name = n.get("name") or n["plugin"].split("/")[1]
+        lua = (f'-- {p["name"]} (generated by cinnamon-palettes)\n'
+               f'pcall(function() require("lazy").load({{ plugins = {{ "{name}" }} }}) end)\n'
+               f'vim.cmd.colorscheme("{n["colorscheme"]}")\n')
+    write_if_changed(NVIM_COLORS, lua)
+    reload_nvim()
+
+
+def reload_nvim():
+    run = os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
+    for sock in glob.glob(f"{run}/nvim.*.0"):
+        subprocess.run(["nvim", "--server", sock, "--remote-expr", 'execute("colorscheme palette")'],
+                       capture_output=True, timeout=5)
+
+
+def desktop(p, theme_dir):
+    name = theme_dir.name
+    gs_set("gtk", name)
+    gs_set("wm", name)
+    gs_set("cinnamon", name)
+    if GTK4.is_symlink():  # libadwaita apps read ~/.config/gtk-4.0/gtk.css
+        GTK4.unlink()
+        GTK4.symlink_to(theme_dir / "gtk-4.0")
+    gs_set("wallpaper", wallpaper(p).as_uri())
+
+
+def apply(slug):
+    p = get(slug)
+    snapshot()
+    theme_dir = build(p)
+    desktop(p, theme_dir)
+    ghostty(p)
+    btop(p)
+    nvim(p)
+    write_if_changed(STATE / "current", slug + "\n")
+    print(f"applied {p['name']}")
+
+
+def cycle(step):
+    slugs = list(palettes())
+    cur = current()
+    i = slugs.index(cur) if cur in slugs else -step
+    apply(slugs[(i + step) % len(slugs)])
+
+
+def main(argv):
+    cmd = argv[0] if argv else "list"
+    if cmd == "list":
+        cur = current()
+        for s, p in palettes().items():
+            print(f"{'*' if s == cur else ' '} {s:13} {p['name']}")
+    elif cmd == "json":  # for the applet
+        print(json.dumps({"current": current(), "palettes": list(palettes().values())}))
+    elif cmd == "current":
+        print(current() or "")
+    elif cmd == "build":
+        targets = palettes().values() if argv[1:] == ["--all"] or not argv[1:] else [get(argv[1])]
+        for p in targets:
+            build(p, force=True)
+    elif cmd == "apply" and len(argv) == 2:
+        apply(argv[1])
+    elif cmd == "next":
+        cycle(1)
+    elif cmd == "prev":
+        cycle(-1)
+    elif cmd == "restore":
+        restore()
+    else:
+        print(__doc__.strip())
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
