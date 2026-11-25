@@ -6,6 +6,7 @@ switches the whole desktop to a palette:
 | Target | What changes |
 |---|---|
 | Cinnamon / GTK3 / GTK4 / window borders | `~/.themes/Palette-<Name>`, recoloured from Mint-Y-Dark with an Omarchy-flavoured overlay (flat surfaces, thin outlines, accent highlights) |
+| Window borders | Rounded Corners extension (if installed): focused border = accent, unfocused = outline, applied live |
 | libadwaita apps | `~/.config/gtk-4.0` symlink is repointed (only if it already is a symlink) |
 | Wallpaper | generated per palette: dusk sky, accent sun, layered ridges |
 | Ghostty | `~/.config/ghostty/themes/palette-current`, live-reloaded with SIGUSR2 |

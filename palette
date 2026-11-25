@@ -24,6 +24,8 @@ BTOP_CFG = HOME / ".config/btop/btop.conf"
 BTOP_THEME = HOME / ".config/btop/themes/palette.theme"
 NVIM_COLORS = HOME / ".config/nvim/colors/palette.lua"
 GTK4 = HOME / ".config/gtk-4.0"
+CORNERS_CFG = HOME / ".config/cinnamon/spices/RoundedCorners@klangman/RoundedCorners@klangman.json"
+CORNERS_KEYS = ("border-color", "border-color-unfocused")
 
 GS = {
     "cinnamon": ("org.cinnamon.theme", "name"),
@@ -87,9 +89,15 @@ def mix(a, b, t):
 # ---- snapshot / restore -------------------------------------------------------
 def snapshot():
     f = STATE / "snapshot.json"
-    if f.exists():
+    if f.exists():  # older snapshots: add targets that were introduced later
+        snap = json.loads(f.read_text())
+        if "corners" not in snap and (c := corners_get()):
+            snap["corners"] = c
+            f.write_text(json.dumps(snap, indent=2))
         return
     snap = {k: gs_get(k) for k in GS}
+    if c := corners_get():
+        snap["corners"] = c
     if GTK4.is_symlink():
         snap["gtk4_link"] = os.readlink(GTK4)
     if GHOSTTY_CFG.exists():
@@ -119,6 +127,8 @@ def restore():
         reload_ghostty()
     if "btop" in snap:
         set_btop_theme(snap["btop"])
+    if "corners" in snap:
+        corners_set(snap["corners"])
     write_if_changed(NVIM_COLORS, nvim_scheme_lua("original", snap["nvim"]))
     reload_nvim()
     (STATE / "current").unlink(missing_ok=True)
@@ -264,6 +274,34 @@ def reload_nvim():
                        capture_output=True, timeout=5)
 
 
+def corners_get():
+    """Window border colours of the Rounded Corners extension, if installed."""
+    if not CORNERS_CFG.exists():
+        return None
+    d = json.loads(CORNERS_CFG.read_text())
+    return {k: d[k]["value"] for k in CORNERS_KEYS if k in d}
+
+
+def corners_set(values):
+    # Cinnamon watches the settings file, so the running extension picks this up live
+    if not CORNERS_CFG.exists():
+        return
+    d = json.loads(CORNERS_CFG.read_text())
+    changed = False
+    for k, v in values.items():
+        if k in d and d[k].get("value") != v:
+            d[k]["value"] = v
+            changed = True
+    if changed:
+        CORNERS_CFG.write_text(json.dumps(d, indent=4))
+
+
+def window_borders(p):
+    from theme import rgb
+    css = lambda h: "rgb(%d,%d,%d)" % rgb(h)
+    corners_set({"border-color": css(p["accent"]), "border-color-unfocused": css(p["outline"])})
+
+
 def desktop(p, theme_dir):
     name = theme_dir.name
     gs_set("gtk", name)
@@ -280,6 +318,7 @@ def apply(slug):
     snapshot()
     theme_dir = build(p)
     desktop(p, theme_dir)
+    window_borders(p)
     ghostty(p)
     btop(p)
     nvim(p)
