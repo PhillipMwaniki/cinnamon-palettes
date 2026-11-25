@@ -1,0 +1,17 @@
+{
+  "hotkey": {
+    "type": "keybinding",
+    "default": "<Super><Control><Shift>space::",
+    "description": "Open the palette picker"
+  },
+  "next-hotkey": {
+    "type": "keybinding",
+    "default": "",
+    "description": "Switch to the next palette"
+  },
+  "cli": {
+    "type": "entry",
+    "default": "~/.local/bin/palette",
+    "description": "Path to the palette command"
+  }
+}

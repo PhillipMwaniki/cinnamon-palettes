@@ -1,0 +1,8 @@
+{
+  "uuid": "palettes@PhillipMwaniki",
+  "name": "Palettes",
+  "description": "Omarchy-style palette switcher: desktop theme, wallpaper, Ghostty, btop and Neovim in one click",
+  "version": "1.0",
+  "max-instances": 1,
+  "icon": "preferences-desktop-theme"
+}
