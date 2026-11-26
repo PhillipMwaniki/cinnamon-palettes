@@ -34,5 +34,13 @@
   },
   "success": "#a6e3a1",
   "error": "#f38ba8",
-  "warning": "#f9e2af"
+  "warning": "#f9e2af",
+  "photo": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Clear_Night_%28227774827%29.jpeg",
+    "title": "Clear Night (227774827)",
+    "author": "Alexandre Patrier",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Clear_Night_(227774827).jpeg"
+  }
 }

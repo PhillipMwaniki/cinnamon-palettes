@@ -32,5 +32,13 @@
     "base16": true
   },
   "error": "#d35f5f",
-  "warning": "#e68e0d"
+  "warning": "#e68e0d",
+  "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/Black_sand_in_Waihi_Beach_Reserve_06.jpg/3840px-Black_sand_in_Waihi_Beach_Reserve_06.jpg",
+    "title": "Black sand in Waihi Beach Reserve 06",
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Black_sand_in_Waihi_Beach_Reserve_06.jpg"
+  }
 }

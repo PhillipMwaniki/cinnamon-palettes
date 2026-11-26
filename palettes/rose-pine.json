@@ -34,5 +34,13 @@
     "colorscheme": "rose-pine-main"
   },
   "error": "#eb6f92",
-  "warning": "#f6c177"
+  "warning": "#f6c177",
+  "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Lake_Sylvester_during_the_sunrise%2C_Kahurangi%2C_New_Zealand.jpg/3840px-Lake_Sylvester_during_the_sunrise%2C_Kahurangi%2C_New_Zealand.jpg",
+    "title": "Lake Sylvester during the sunrise, Kahurangi, New Zealand",
+    "author": "Michal Klajban",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Lake_Sylvester_during_the_sunrise,_Kahurangi,_New_Zealand.jpg"
+  }
 }

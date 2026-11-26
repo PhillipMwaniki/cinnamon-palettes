@@ -15,4 +15,5 @@ if [ -d "$HOME/.config/nvim/lua/plugins" ]; then
 fi
 
 "$ROOT/palette" build --all
+"$ROOT/palette" fetch || echo "note: photo wallpapers will download on first use"
 echo "Installed. Add the 'Palettes' applet to a panel, or run: palette apply tokyo-night"

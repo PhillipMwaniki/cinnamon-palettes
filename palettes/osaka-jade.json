@@ -32,5 +32,13 @@
     "base16": true
   },
   "error": "#ff5345",
-  "warning": "#459451"
+  "warning": "#459451",
+  "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/3840px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg",
+    "title": "Bamboo Forest, Arashiyama, Kyoto, Japan",
+    "author": "Basile Morin",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Bamboo_Forest,_Arashiyama,_Kyoto,_Japan.jpg"
+  }
 }

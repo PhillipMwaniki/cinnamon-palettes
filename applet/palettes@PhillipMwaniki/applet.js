@@ -103,7 +103,10 @@ class PalettesApplet extends Applet.IconApplet {
         }
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        const next = new PopupMenu.PopupIconMenuItem('Next palette', 'media-skip-forward-symbolic', St.IconType.SYMBOLIC);
+        const photos = new PopupMenu.PopupSwitchMenuItem('Photo wallpapers', this._data.wallpaper !== 'generated');
+        photos.connect('toggled', (item, on) => this._apply(['wallpaper', on ? 'photo' : 'generated'], 'wallpaper style'));
+        this.menu.addMenuItem(photos);
+        const next =new PopupMenu.PopupIconMenuItem('Next palette', 'media-skip-forward-symbolic', St.IconType.SYMBOLIC);
         next.connect('activate', () => this._apply(['next'], 'next palette'));
         this.menu.addMenuItem(next);
         if (current) {

@@ -7,6 +7,8 @@
   palette apply SLUG           switch desktop, GTK4, wallpaper, Ghostty, btop, Neovim
   palette next | prev          cycle through palettes
   palette restore              go back to the setup saved before the first apply
+  palette wallpaper [photo|generated]   show or set the wallpaper style
+  palette fetch                download every palette's photo wallpaper now
 """
 import glob, json, os, re, signal, subprocess, sys
 from pathlib import Path
@@ -150,13 +152,55 @@ def build(p, force=False):
     return dest
 
 
-def wallpaper(p):
+def wallpaper_mode():
+    f = STATE / "wallpaper"
+    mode = f.read_text().strip() if f.exists() else "photo"
+    return mode if mode in ("photo", "generated") else "photo"
+
+
+def generated_wallpaper(p):
     import wallpaper as wp
     f = WALLS / f"{p['slug']}.jpg"
     if not f.exists():
         WALLS.mkdir(parents=True, exist_ok=True)
         wp.render(p, f)
     return f
+
+
+def photo_wallpaper(p):
+    """Download the palette's photo (freely licensed, from Wikimedia Commons) once.
+    The bytes are decoded and re-encoded so only real image data ends up on disk."""
+    import io, urllib.request
+    from PIL import Image
+    ph = p.get("photo")
+    if not ph:
+        return None
+    f = WALLS / "photos" / f"{p['slug']}.jpg"
+    if f.exists():
+        return f
+    print(f"downloading {p['name']} wallpaper …")
+    req = urllib.request.Request(ph["url"], headers={"User-Agent": "cinnamon-palettes/1.0"})
+    data = urllib.request.urlopen(req, timeout=60).read()
+    im = Image.open(io.BytesIO(data))
+    im.load()
+    if im.width < 1280 or im.format not in ("JPEG", "PNG"):
+        raise ValueError(f"unexpected image ({im.format}, {im.width}px)")
+    f.parent.mkdir(parents=True, exist_ok=True)
+    tmp = f.with_suffix(".part")
+    im.convert("RGB").save(tmp, "JPEG", quality=92)
+    tmp.replace(f)
+    return f
+
+
+def wallpaper(p):
+    if wallpaper_mode() == "photo":
+        try:
+            f = photo_wallpaper(p)
+            if f:
+                return f
+        except Exception as e:  # offline etc.: fall back to the generated one
+            print(f"photo wallpaper unavailable ({e}); using the generated one", file=sys.stderr)
+    return generated_wallpaper(p)
 
 
 def ghostty(p):
@@ -340,7 +384,7 @@ def main(argv):
         for s, p in palettes().items():
             print(f"{'*' if s == cur else ' '} {s:13} {p['name']}")
     elif cmd == "json":  # for the applet
-        print(json.dumps({"current": current(), "palettes": list(palettes().values())}))
+        print(json.dumps({"current": current(), "wallpaper": wallpaper_mode(), "palettes": list(palettes().values())}))
     elif cmd == "init-nvim":  # used by install.sh: keep the current look until a palette is applied
         if not NVIM_COLORS.exists():
             write_if_changed(NVIM_COLORS, nvim_scheme_lua("original", argv[1] if argv[1:] else "astrodark"))
@@ -358,6 +402,21 @@ def main(argv):
         cycle(-1)
     elif cmd == "restore":
         restore()
+    elif cmd == "wallpaper":
+        if argv[1:]:
+            if argv[1] not in ("photo", "generated"):
+                sys.exit("usage: palette wallpaper [photo|generated]")
+            STATE.mkdir(parents=True, exist_ok=True)
+            (STATE / "wallpaper").write_text(argv[1] + "\n")
+            if (cur := current()):
+                gs_set("wallpaper", wallpaper(get(cur)).as_uri())
+        print(wallpaper_mode())
+    elif cmd == "fetch":
+        for p in palettes().values():
+            try:
+                photo_wallpaper(p)
+            except Exception as e:
+                print(f"{p['slug']}: {e}", file=sys.stderr)
     else:
         print(__doc__.strip())
         sys.exit(1)

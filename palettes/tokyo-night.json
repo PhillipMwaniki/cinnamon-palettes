@@ -33,5 +33,13 @@
   },
   "success": "#9ece6a",
   "error": "#f7768e",
-  "warning": "#e0af68"
+  "warning": "#e0af68",
+  "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Minato_City%2C_Tokyo%2C_Japan_%28Night%29-denoised.jpg/3840px-Minato_City%2C_Tokyo%2C_Japan_%28Night%29-denoised.jpg",
+    "title": "Minato City, Tokyo, Japan (Night)-denoised",
+    "author": "David Kernan",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Minato_City,_Tokyo,_Japan_(Night)-denoised.jpg"
+  }
 }

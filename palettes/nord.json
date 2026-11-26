@@ -33,5 +33,13 @@
   },
   "success": "#a3be8c",
   "error": "#bf616a",
-  "warning": "#ebcb8b"
+  "warning": "#ebcb8b",
+  "photo": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Sildpollneset.jpg",
+    "title": "Sildpollneset",
+    "author": "Øystein Bjørke",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Sildpollneset.jpg"
+  }
 }

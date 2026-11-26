@@ -33,5 +33,13 @@
     "plugin": "rebelot/kanagawa.nvim",
     "colorscheme": "kanagawa-wave"
   },
-  "warning": "#c0a36e"
+  "warning": "#c0a36e",
+  "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Wave_off_Kanagawa2.jpg/3840px-Great_Wave_off_Kanagawa2.jpg",
+    "title": "Great Wave off Kanagawa2",
+    "author": "After Katsushika Hokusai",
+    "license": "Public domain",
+    "license_url": "",
+    "page": "https://commons.wikimedia.org/wiki/File:Great_Wave_off_Kanagawa2.jpg"
+  }
 }
